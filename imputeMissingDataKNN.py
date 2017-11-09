@@ -24,7 +24,7 @@ def splitDfNansNot(ncol, dfexcol):
 	
 # fcn that builds the training set for a given row
 def buildTrainingSet(nrowX,ndf):
-    misscols = list(nrowX[~pd.isnull(nrowX)].index-1)
+    misscols = list(nrowX[~pd.isnull(nrowX)].index)
     notnaArr = np.array(ndf)
     col_mean = np.nanmean(notnaArr,axis=0)
     inds = np.where(np.isnan(notnaArr))
