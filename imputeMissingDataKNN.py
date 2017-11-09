@@ -36,7 +36,7 @@ def buildTrainingSet(nrowX,ndf):
 # fcn that returns the predicted value based using kNN reg	
 def kNNRegress(k,X,y,xpred,fitcores):
     neigh = KNeighborsRegressor(n_neighbors=k,n_jobs=fitcores)
-    return neigh.fit(X,y).predict(xpred.reshape(1,-1))[0]
+    return neigh.fit(X,y).predict(xpred.values.reshape(1,-1))[0]
 	
 def fillColNans(k,ncol,dfexcol,fitcores):
     nanscol, notnanscol,nansexdf,notnansexdf = splitDfNansNot(ncol,dfexcol)
