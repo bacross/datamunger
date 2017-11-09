@@ -29,7 +29,7 @@ def buildTrainingSet(nrowX,ndf):
     col_mean = np.nanmean(notnaArr,axis=0)
     inds = np.where(np.isnan(notnaArr))
     notnaArr[inds]=np.take(col_mean,inds[1])
-    cleandf = pd.DataFrame(notnaArr,index = ndf.index)
+    cleandf = pd.DataFrame(notnaArr,index = ndf.index,columns=ndf.columns)
     cleandf = cleandf[misscols]
     return cleandf
 	
