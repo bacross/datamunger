@@ -94,8 +94,8 @@ def outlierToNanCol(ncol,lower_lim,upper_lim):
 		
 # fcn Parallel implementation of conversion of outliers to nans
 def outlierToNanDF(ndf,lower_lim,upper_lim):
-	ncores = multiprocessing.cpu_count-1
-	outColList = Parallel(n_jobs=ncores)(delayed(outlierToNanCol)(ndf[col],lower_lim,upper_lim) for col in ndf.columns())
+	ncores = multiprocessing.cpu_count()-1
+	outColList = Parallel(n_jobs=ncores)(delayed(outlierToNanCol)(ndf[col],lower_lim,upper_lim) for col in ndf.columns)
 	newdf = pd.concat(outColList, axis=1)
 	return newdf
 	
