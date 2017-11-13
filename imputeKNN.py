@@ -50,7 +50,7 @@ def fillColNans(k,ncol,dfexcol,fitcores):
 def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
     nrowX = nansexdf.loc[idx]
     X = buildTrainingSet(nrowX,notnansexdf)
-    if X.shape[1]<k:
+    if X.shape[0]<k:
         ypred = notnanscol.median
     else:
         ypred = kNNRegress(k,X,notnanscol,nrowX[~pd.isnull(nrowX)],fitcores)
@@ -71,18 +71,22 @@ def imputeMissingDataForCol(n,bigdf,k,fitcores):
 # Parallel implementation of missing data imputation - parallel by column
 # Note: included in here is a parameter to tree parallelization if available, but this is not fully functional...
 # as it hung on me when I tried to implement it.  For now hardcoded.
-def imputeMissingDataKNN(bigdf,k):
+def imputeMissingDataKNN(bigdf,k,multicore):
     N = bigdf.shape[1]
-    ncores = multiprocessing.cpu_count() - 1
-    rowcores = ncores
-    fitcores=1
-    predColList = Parallel(n_jobs = rowcores)(delayed(imputeMissingDataForCol)(n,bigdf,k,fitcores) for n in range(N))
+    if multicore==True:
+        ncores = multiprocessing.cpu_count() - 1
+        rowcores = ncores
+        fitcores=1 #hardcoded for now because I can't get the multicore tree architecture to work
+        predColList = Parallel(n_jobs = rowcores)(delayed(imputeMissingDataForCol)(n,bigdf,k,fitcores) for n in range(N))
+    else:
+        predColList = [imputeMissingDataForCol(n,bigdf,k,fitcores=1) for n in range(N)]
     newdf = pd.concat(predColList,axis=1)
+    newdf.columns=bigdf.columns
     return newdf
 
 #fcn that replaces outliers in a column for a given pctile tolerance with nans
 def outlierToNanCol(ncol,lower_lim,upper_lim):
-    if ncol.isnull().sum()>0:
+    if ncol.isnull().sum().sum()>0:
         print('Error: There are still nans present. Please remove first.')
     else:
         news=ncol.copy()
@@ -93,14 +97,18 @@ def outlierToNanCol(ncol,lower_lim,upper_lim):
     return news
 		
 # fcn Parallel implementation of conversion of outliers to nans
-def outlierToNanDF(ndf,lower_lim,upper_lim):
-    ncores = multiprocessing.cpu_count()-1
-    outColList = Parallel(n_jobs=ncores)(delayed(outlierToNanCol)(ndf[col],lower_lim,upper_lim) for col in ndf.columns)
+def outlierToNanDF(ndf,lower_lim,upper_lim,multicore):
+    if multicore==True:
+        ncores = multiprocessing.cpu_count()-1
+        outColList = Parallel(n_jobs=ncores)(delayed(outlierToNanCol)(ndf[col],lower_lim,upper_lim) for col in ndf.columns)
+    else:
+        outColList = [outlierToNanCol(ndf[col],lower_lim,upper_lim) for col in ndf.columns]
     newdf = pd.concat(outColList, axis=1)
+    newdf.columns=ndf.columns
     return newdf
 	
 # fcn that finds outliers in a DF, converts them to Nans and then replaces them with imputed values via knn regression
-def outlierImpute(ndf, lower_lim, upper_lim, k):
-    outNanDf = outlierToNanDF(ndf,lower_lim,upper_lim)
-    cleanDF = imputeMissingDataKNN(outNanDf, k)
+def imputeOutlierKNN(ndf, lower_lim, upper_lim, k, multicore):
+    outNanDf = outlierToNanDF(ndf,lower_lim,upper_lim,multicore)
+    cleanDF = imputeMissingDataKNN(outNanDf, k,multicore)
     return cleanDF
