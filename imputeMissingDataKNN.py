@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 24 11:21:35 2017
-
 @author: bacro
 """
 # %% Load Packages
