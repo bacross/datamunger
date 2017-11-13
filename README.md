@@ -1,4 +1,17 @@
 
+# Readme text for datamunger package
+datamunger uses a K-Nearest Neighbors approach to impute both outliers and missing data.
+for each column and each nan within the column of a dataframe, datamunger uses the other available columns to build a geometry for which kNN's can be used to impute the missing data point.
+
+Notes:
+- multicore doesn't handle well in windows.  There is the option to use multicore on both the embarassing loop thru columns but also the knn fit as available via scikit-learn.  right now, multicore is hardcoded to n_jobs=1 in the scikit-learn fit and set to number of available cores for the columnar embarassing loop.
+
+
+ToDo's:
+1) handling for a row of all nan's 
+
+Required Packages:
+
 
 ```python
 import numpy as np
@@ -13,13 +26,15 @@ import importlib
 
 
 ```python
-sys.path.append('/datamunger')
+sys.path.append('C:/Users/bacro/OneDrive/PythonScripts/MungerProject/datamunger')
 ```
 
 
 ```python
 import imputeKNN as iknn
 ```
+
+Generate a dataframe of random numbers and then randomly force some of those numbers to be nan's
 
 
 ```python
@@ -31,85 +46,6 @@ for row, col in random.sample(ix, int(round(.1*len(ix)))):
 
 
 ```python
-df.head()
-```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>0</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>NaN</td>
-      <td>-0.405989</td>
-      <td>0.295981</td>
-      <td>-0.526300</td>
-      <td>1.145245</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.302822</td>
-      <td>1.484632</td>
-      <td>-0.680715</td>
-      <td>0.167210</td>
-      <td>-0.282413</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>-0.350472</td>
-      <td>-0.375773</td>
-      <td>NaN</td>
-      <td>1.094130</td>
-      <td>0.317750</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.310562</td>
-      <td>0.515591</td>
-      <td>-1.689293</td>
-      <td>0.622763</td>
-      <td>-0.958986</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.637836</td>
-      <td>NaN</td>
-      <td>-0.020487</td>
-      <td>0.584991</td>
-      <td>0.732111</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-reload(iknn)
-```
-
-
-
-
-    <module 'imputeKNN' from 'imputeKNN.py'>
-
-
-
-
-```python
 # code to remove missing data
 start_time = timeit.default_timer()
 newdf = iknn.imputeMissingDataKNN(df,30,multicore=False)
@@ -117,7 +53,7 @@ elapsed = timeit.default_timer() - start_time
 print(elapsed)
 ```
 
-    1.51469581899
+    1.71197532222
     
 
 
@@ -129,210 +65,15 @@ elapsed = timeit.default_timer() - start_time
 print(elapsed)
 ```
 
-    1.57565181645
+    1.55103146836
     
 
 
 ```python
-df.head()
-```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>0</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>NaN</td>
-      <td>-0.405989</td>
-      <td>0.295981</td>
-      <td>-0.526300</td>
-      <td>1.145245</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.302822</td>
-      <td>1.484632</td>
-      <td>-0.680715</td>
-      <td>0.167210</td>
-      <td>-0.282413</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>-0.350472</td>
-      <td>-0.375773</td>
-      <td>NaN</td>
-      <td>1.094130</td>
-      <td>0.317750</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.310562</td>
-      <td>0.515591</td>
-      <td>-1.689293</td>
-      <td>0.622763</td>
-      <td>-0.958986</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.637836</td>
-      <td>NaN</td>
-      <td>-0.020487</td>
-      <td>0.584991</td>
-      <td>0.732111</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-cleandf.head()
-```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>0</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>-0.262658</td>
-      <td>-0.405989</td>
-      <td>0.295981</td>
-      <td>-0.526300</td>
-      <td>1.145245</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.302822</td>
-      <td>1.484632</td>
-      <td>-0.680715</td>
-      <td>0.167210</td>
-      <td>-0.282413</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>-0.350472</td>
-      <td>-0.375773</td>
-      <td>-0.005060</td>
-      <td>1.094130</td>
-      <td>0.317750</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.310562</td>
-      <td>0.515591</td>
-      <td>-0.055195</td>
-      <td>0.622763</td>
-      <td>-0.958986</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.637836</td>
-      <td>0.008554</td>
-      <td>-0.020487</td>
-      <td>0.584991</td>
-      <td>0.732111</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
 mediandf = df.apply(lambda x: x.fillna(x.median()),axis=0)
-mediandf.head()
+medoutdf = iknn.outlierToNanDF(mediandf,lower_lim=0.05,upper_lim=0.95,multicore=False)
+meddf = medoutdf.apply(lambda x: x.fillna(x.median()),axis=0)
 ```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>0</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.030099</td>
-      <td>-0.405989</td>
-      <td>0.295981</td>
-      <td>-0.526300</td>
-      <td>1.145245</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.302822</td>
-      <td>1.484632</td>
-      <td>-0.680715</td>
-      <td>0.167210</td>
-      <td>-0.282413</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>-0.350472</td>
-      <td>-0.375773</td>
-      <td>0.019144</td>
-      <td>1.094130</td>
-      <td>0.317750</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.310562</td>
-      <td>0.515591</td>
-      <td>-1.689293</td>
-      <td>0.622763</td>
-      <td>-0.958986</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.637836</td>
-      <td>-0.036534</td>
-      <td>-0.020487</td>
-      <td>0.584991</td>
-      <td>0.732111</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
@@ -343,17 +84,17 @@ cleandf.hist(layout=(3,2))
 
 
 
-    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x0000000010551668>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010683A90>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000010C59438>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010D41860>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000010DC9208>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010D5D828>]], dtype=object)
+    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x000000000E79C0F0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x000000000D6270F0>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x000000000CED7898>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x000000000CF7C9B0>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x000000000D33D9E8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x000000000D3D4DA0>]], dtype=object)
 
 
 
 
-![png](output_11_1.png)
+![png](output_10_1.png)
 
 
 
@@ -364,38 +105,38 @@ df.hist(layout=(3,2))
 
 
 
-    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x000000001145DD68>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x00000000111C2278>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x000000001171BBE0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x00000000117D0128>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000011890B38>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x00000000117E9DA0>]], dtype=object)
+    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x00000000107259B0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010415320>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000010A18D30>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010ACC1D0>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000010B86BE0>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010AE4F28>]], dtype=object)
 
 
 
 
-![png](output_12_1.png)
+![png](output_11_1.png)
 
 
 
 ```python
-mediandf.hist(layout=(3,2))
+meddf.hist(layout=(3,2))
 ```
 
 
 
 
-    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x000000001124C4E0>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000011C26550>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x0000000012199DD8>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x000000001224E278>],
-           [<matplotlib.axes._subplots.AxesSubplot object at 0x000000001234BB00>,
-            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000012456668>]], dtype=object)
+    array([[<matplotlib.axes._subplots.AxesSubplot object at 0x00000000111BC5F8>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010F6F198>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x00000000114C5B00>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x0000000010646CF8>],
+           [<matplotlib.axes._subplots.AxesSubplot object at 0x000000001163B208>,
+            <matplotlib.axes._subplots.AxesSubplot object at 0x00000000116B2A90>]], dtype=object)
 
 
 
 
-![png](output_13_1.png)
+![png](output_12_1.png)
 
 
 
