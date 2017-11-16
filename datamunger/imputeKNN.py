@@ -18,7 +18,7 @@ def splitDfNansNot(ncol, dfexcol):
     nansexdf = dfexcol.ix[ncol.isnull()==True,:]
     notnansexdf = dfexcol.ix[ncol.isnull()==False,:]
     return nanscol, notnanscol,nansexdf,notnansexdf
-	
+    
 # fcn that builds the training set for a given row
 def buildTrainingSet(nrowX,ndf):
     misscols = list(nrowX[~pd.isnull(nrowX)].index)
@@ -29,13 +29,13 @@ def buildTrainingSet(nrowX,ndf):
     cleandf = pd.DataFrame(notnaArr,index = ndf.index,columns=ndf.columns)
     cleandf = cleandf[misscols]
     return cleandf
-	
-# fcn that returns the predicted value based using kNN reg	
+    
+# fcn that returns the predicted value based using kNN reg  
 def kNNRegress(k,X,y,xpred,fitcores):
     neigh = KNeighborsRegressor(n_neighbors=k,n_jobs=fitcores)
     return neigh.fit(X,y).predict(xpred.values.reshape(1,-1))[0]
 
-# fcn that applies the knn algorithm to the nans in a column and then creates a new column of the join between nans and notnans	
+# fcn that applies the knn algorithm to the nans in a column and then creates a new column of the join between nans and notnans 
 def fillColNans(k,ncol,dfexcol,fitcores):
     nanscol, notnanscol,nansexdf,notnansexdf = splitDfNansNot(ncol,dfexcol)
     ypredLst = []
@@ -44,13 +44,13 @@ def fillColNans(k,ncol,dfexcol,fitcores):
     ypredcol.index = nanscol.index
     newcol = pd.concat([notnanscol,ypredcol])
     return newcol
-	
-# helper fcn to fillColNans that decides to use knn or median depending on data	shape
+    
+# helper fcn to fillColNans that decides to use knn or median depending on data shape
 def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
     nrowX = nansexdf.loc[idx]
-	if nrowX.isnull().sum()==nrowX.shape[0]:
-	    ypred = notnanscol.median
-	else:	
+    if nrowX.isnull().sum()==nrowX.shape[0]:
+        ypred = notnanscol.median
+    else:   
         X = buildTrainingSet(nrowX,notnansexdf)
         if X.shape[0]<k:
             ypred = notnanscol.median
@@ -58,13 +58,13 @@ def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
             ypred = kNNRegress(k,X,notnanscol,nrowX[~pd.isnull(nrowX)],fitcores)
     return ypred
 
-# fcn that parses DF into column to impute and residual features to model on	
+# fcn that parses DF into column to impute and residual features to model on    
 def parseDf(n,bigdf):
     ncol = bigdf[bigdf.columns[n]]
     dfexcol = bigdf.iloc[:,bigdf.columns!=bigdf.columns[n]]
     return ncol,dfexcol
 
-# full fcn that utilizes helper functions to run imputation on a specific column	
+# full fcn that utilizes helper functions to run imputation on a specific column    
 def imputeMissingDataForCol(n,bigdf,k,fitcores):
     ncol,dfexcol = parseDf(n,bigdf)
     ypredcol = fillColNans(k,ncol,dfexcol,fitcores)
@@ -97,7 +97,7 @@ def outlierToNanCol(ncol,lower_lim,upper_lim):
             news[news < q.iloc[0]] = np.nan
             news[news > q.iloc[1]] = np.nan
     return news
-		
+        
 # fcn Parallel implementation of conversion of outliers to nans
 def outlierToNanDF(ndf,lower_lim,upper_lim,multicore):
     if multicore==True:
@@ -108,7 +108,7 @@ def outlierToNanDF(ndf,lower_lim,upper_lim,multicore):
     newdf = pd.concat(outColList, axis=1)
     newdf.columns=ndf.columns
     return newdf
-	
+    
 # fcn that finds outliers in a DF, converts them to Nans and then replaces them with imputed values via knn regression
 def imputeOutlierKNN(ndf, lower_lim, upper_lim, k, multicore):
     outNanDf = outlierToNanDF(ndf,lower_lim,upper_lim,multicore)
