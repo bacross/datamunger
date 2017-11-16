@@ -48,11 +48,14 @@ def fillColNans(k,ncol,dfexcol,fitcores):
 # helper fcn to fillColNans that decides to use knn or median depending on data	shape
 def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
     nrowX = nansexdf.loc[idx]
-    X = buildTrainingSet(nrowX,notnansexdf)
-    if X.shape[0]<k:
-        ypred = notnanscol.median
-    else:
-        ypred = kNNRegress(k,X,notnanscol,nrowX[~pd.isnull(nrowX)],fitcores)
+	if nrowX.isnull().sum()==nrowX.shape[0]:
+	    ypred = notnanscol.median
+	else:	
+        X = buildTrainingSet(nrowX,notnansexdf)
+        if X.shape[0]<k:
+            ypred = notnanscol.median
+        else:
+            ypred = kNNRegress(k,X,notnanscol,nrowX[~pd.isnull(nrowX)],fitcores)
     return ypred
 
 # fcn that parses DF into column to impute and residual features to model on	
