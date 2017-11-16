@@ -6,7 +6,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import KNeighborsRegressor
-import multiprocessing
+import os
 from joblib import Parallel,delayed
 
 # %% functions
@@ -73,7 +73,7 @@ def imputeMissingDataForCol(n,bigdf,k,fitcores):
 def imputeMissingDataKNN(bigdf,k,multicore):
     N = bigdf.shape[1]
     if multicore==True:
-        ncores = multiprocessing.cpu_count() - 1
+        ncores = os.cpu_count() - 1
         rowcores = ncores
         fitcores=1 #hardcoded for now because I can't get the multicore tree architecture to work
         predColList = Parallel(n_jobs = rowcores)(delayed(imputeMissingDataForCol)(n,bigdf,k,fitcores) for n in range(N))
