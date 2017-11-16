@@ -49,11 +49,11 @@ def fillColNans(k,ncol,dfexcol,fitcores):
 def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
     nrowX = nansexdf.loc[idx]
     if nrowX.isnull().sum()==nrowX.shape[0]:
-        ypred = float(notnanscol.median)
+        ypred = notnanscol.median()
     else:   
         X = buildTrainingSet(nrowX,notnansexdf)
         if X.shape[0]<k:
-            ypred = float(notnanscol.median)
+            ypred = notnanscol.median()
         else:
             ypred = kNNRegress(k,X,notnanscol,nrowX[~pd.isnull(nrowX)],fitcores)
     return ypred

@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='datamunger',
-    version='0.3.6',
+    version='0.3.7',
     description = 'Set of tools for Nan and Outlier Imputation',
     url = 'https://github.com/bacross/datamunger',
     author = 'bacross',
