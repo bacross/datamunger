@@ -58,8 +58,8 @@ def chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores):
 
 # fcn that parses DF into column to impute and residual features to model on	
 def parseDf(n,bigdf):
-    ncol = bigdf[n]
-    dfexcol = bigdf.iloc[:,bigdf.columns!=n]
+    ncol = bigdf[bigdf.columns[n]]
+    dfexcol = bigdf.iloc[:,bigdf.columns!=bigdf.columns[n]]
     return ncol,dfexcol
 
 # full fcn that utilizes helper functions to run imputation on a specific column	
