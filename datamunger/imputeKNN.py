@@ -40,9 +40,12 @@ def fillColNans(k,ncol,dfexcol,fitcores):
     nanscol, notnanscol,nansexdf,notnansexdf = splitDfNansNot(ncol,dfexcol)
     ypredLst = []
     ypredLst = [chooseNanFill(k,idx,nansexdf,notnansexdf,notnanscol,fitcores) for idx in list(nanscol.index)]
-    ypredcol = pd.DataFrame(ypredLst)
-    ypredcol.index = nanscol.index
-    newcol = pd.concat([notnanscol,ypredcol])
+	if ypredLst == []:
+		newcol = pd.DataFrame(notnanscol)
+	else:
+		ypredcol = pd.DataFrame(ypredLst)
+		ypredcol.index = nanscol.index
+		newcol = pd.concat([notnanscol,ypredcol])
     return newcol
     
 # helper fcn to fillColNans that decides to use knn or median depending on data shape
